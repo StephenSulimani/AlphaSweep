@@ -79,6 +79,7 @@ def job_search():
     """
     Search for new jobs, add them to the database, and send them to Discord
     """
+    print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} 🚀 Starting job search")
     for query in queries:
         results = serper.search(query)
 

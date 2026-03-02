@@ -8,6 +8,9 @@ RUN pip install --user --no-cache-dir -r requirements.txt
 
 FROM python:3.11-alpine
 
+RUN apk add --no-cache tzdata
+ENV TZ=America/New_York
+
 WORKDIR /app
 
 COPY --from=builder /root/.local /root/.local
