@@ -59,12 +59,10 @@ python main.py
 ```bash
 docker build -t alphasweep .
 docker run -d \
-  --name alphasweep_instance \
-  -v $(pwd)/jobs.db:/app/jobs.db \
-  --env-file .env \
-  --restart unless-stopped \
-  alphasweep
-
+--name alphasweep_instance \
+-v $(pwd)/data:/app/data \
+--env-file .env \
+alphasweep:latest
 ```
 
 ---

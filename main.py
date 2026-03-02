@@ -38,10 +38,9 @@ queries = [
     '(site:lever.co OR site:greenhouse.io OR site:ashbyhq.com OR site:resolu.com OR site:pinpoint.hq) ("Summer" OR "Intern") (Investment OR Equities OR Quant OR Software OR SWE)'
 ]
 
-print("🔎 Starting initial search")
-
 
 def initial_search():
+    print("🔎 Starting initial search")
     for query in queries:
         results = serper.search(query)
 
@@ -110,6 +109,7 @@ def job_search():
 
 
 if __name__ == "__main__":
+    initial_search()
     scheduler = BlockingScheduler()
     scheduler.add_job(job_search, "cron", hour="*/2", minute=0, id="job_search")
 

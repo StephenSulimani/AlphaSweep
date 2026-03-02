@@ -75,7 +75,7 @@ class SerperClient:
         )
 
     def search(self, query):
-        payload = {"q": query, "autocorrect": False, "tbs": "qdr:w"}
+        payload = {"q": query, "autocorrect": False, "tbs": "qdr:d"}
 
         res = self.session.post("https://google.serper.dev/search", json=payload)
 
