@@ -4,9 +4,10 @@ from engines import SerperClient
 from models import database_proxy, Job
 from dotenv import load_dotenv
 from apscheduler.schedulers.blocking import BlockingScheduler
-from datetime import datetime
+from datetime import datetime, timedelta
 from time import sleep
 import random
+import traceback
 import os
 
 load_dotenv()
@@ -14,6 +15,8 @@ load_dotenv()
 print("📈 Starting AlphaSweep...")
 
 db = SqliteDatabase(os.getenv("DB_NAME"))
+
+logging_file = os.getenv("LOG_FILE", "/app/data/logs.log")
 
 database_proxy.initialize(db)
 
@@ -39,8 +42,17 @@ queries = [
 ]
 
 
+def log_error(message):
+    with open(logging_file, "a") as f:
+        f.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - {message}\n")
+
+
 def initial_search():
     print("🔎 Starting initial search")
+    recent_job = Job.select().order_by(Job.created_at.desc()).first()
+    if recent_job and recent_job.created_at > datetime.now() - timedelta(days=1):
+        print("🔎 Skipping initial search, recent job found")
+        return
     for query in queries:
         results = serper.search(query)
 
@@ -56,6 +68,7 @@ def initial_search():
                 pass
             except:
                 print("❌ Failed to add job to database")
+                log_error(traceback.format_exc())
 
         all_jobs = Job.select()
 
@@ -98,6 +111,7 @@ def job_search():
                     except:
                         print("❌ Failed to send webhook")
                         txn.rollback()
+                        log_error(traceback.format_exc())
 
             except IntegrityError:
                 pass
@@ -106,6 +120,7 @@ def job_search():
                 print("==================================")
                 print(result)
                 print("==================================")
+                log_error(traceback.format_exc())
 
 
 if __name__ == "__main__":
