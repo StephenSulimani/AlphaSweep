@@ -23,10 +23,8 @@ AlphaSweep/
 ├── engines/           # Specialized Discovery Spiders (Serper.dev)
 ├── models/            # Persistence Layer (Peewee ORM + SQLite)
 ├── utils/             # Notification Wrappers & Token Budgeting
-├── core/              # Scheduling & Orchestration Logic
 ├── main.py            # The AlphaSweep Heartbeat
 └── Dockerfile         # Containerized Deployment Configuration
-
 ```
 
 ---
@@ -40,10 +38,10 @@ Create a `.env` file in the root directory:
 ```bash
 SERPER_KEY=
 DB_NAME=jobs.db
+LOG_FILE=/app/data/logs.log
 DISCORD_WEBHOOK=
 DISCORD_WEBHOOK_NAME=
 DISCORD_WEBHOOK_AVATAR_URL=
-
 ```
 
 ### 2. Native Deployment

@@ -38,7 +38,8 @@ serper = SerperClient(os.getenv("SERPER_KEY"))
 print("🔗 Connected to Serper...")
 
 queries = [
-    '(site:lever.co OR site:greenhouse.io OR site:ashbyhq.com OR site:resolu.com OR site:pinpoint.hq) ("Summer" OR "Intern") (Investment OR Equities OR Quant OR Software OR SWE)'
+    '(site:lever.co OR site:greenhouse.io OR site:ashbyhq.com OR site:resolu.com OR site:pinpoint.hq) ("Summer" OR "Intern") (Investment OR Equities OR Quant OR Software OR SWE)',
+    '(site:myworkdayjobs.com OR site:icims.com OR site:smartrecruiters.com OR site:jobvite.com OR site:breezy.hr) ("Summer" OR "Intern") (Investment OR Equities OR Quant OR Software OR SWE)',
 ]
 
 
