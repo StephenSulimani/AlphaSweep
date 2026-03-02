@@ -73,4 +73,4 @@ class DiscordClient:
         res = self.session.post(self.webhook_url, json=body)
 
         if res.status_code != 204:
-            raise Exception(f"Failed to send webhook: {res.status_code}")
+            raise Exception(f"Failed to send webhook: {res.status_code}\n{res.text}")
