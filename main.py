@@ -1,5 +1,7 @@
 from peewee import IntegrityError, SqliteDatabase
+from engines.engine import Engine
 from engines.harvard import HarvardClient
+from engines.mit import MITClient
 from utils import DiscordClient, Embed
 from engines import SerperClient
 from models import database_proxy, Job
@@ -39,9 +41,10 @@ queries = [
     '(site:myworkdayjobs.com OR site:icims.com OR site:smartrecruiters.com OR site:jobvite.com OR site:breezy.hr) ("Summer" OR "Intern") (Investment OR Equities OR Quant OR Software OR SWE)',
 ]
 
-engines = [
+engines: list[Engine] = [
     SerperClient(os.getenv("SERPER_KEY", ""), queries),
-    HarvardClient()
+    HarvardClient("https://careerservices.fas.harvard.edu/jobs/?ctag%5B%5D=short-term-project&ctag%5B%5D=internship&sort=date"),
+    MITClient("https://capd.mit.edu/jobs/?ctag%5B%5D=internship&sort=date")
 ]
 
 
@@ -94,6 +97,8 @@ def job_search():
                     embed.set_color("#14452F")
                     embed.set_author(client.webhook_name, icon_url=client.avatar_url)
                     embed.add_field("Link", job.url, False)
+                    if job.image_url:
+                        embed.set_thumbnail(job.image_url)
                     if job.date:
                         embed.add_field(
                             "Date", datetime.strftime(job.date, "%Y-%m-%d")

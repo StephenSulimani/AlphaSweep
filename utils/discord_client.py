@@ -34,6 +34,9 @@ class Embed:
     def set_timestamp(self):
         self.__dict__["timestamp"] = datetime.now(timezone.utc).isoformat()
 
+    def set_thumbnail(self, image_url):
+        self.__dict__["thumbnail"] = {"url": image_url}
+
     def to_dict(self):
         return self.__dict__
 

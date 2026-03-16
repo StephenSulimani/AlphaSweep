@@ -7,9 +7,10 @@ from datetime import datetime
 
 
 class HarvardClient(Engine):
+    def __init__(self, url):
+        self.url = url
     def search(self):
-        url = "https://careerservices.fas.harvard.edu/jobs/?ctag%5B%5D=short-term-project&ctag%5B%5D=internship&sort=date"
-        res = requests.get(url)
+        res = requests.get(self.url)
 
         if res.status_code != 200:
             raise Exception(f"Failed to search: {res.status_code}")
