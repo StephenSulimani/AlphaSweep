@@ -27,21 +27,23 @@ print("🚀 Connected to database...")
 
 client = DiscordClient(
     os.getenv("DISCORD_WEBHOOK"),
-    os.getenv("DISCORD_WEBHOOK_NAME"),
-    os.getenv("DISCORD_WEBHOOK_AVATAR_URL"),
+    os.getenv("DISCORD_WEBHOOK_NAME", ""),
+    os.getenv("DISCORD_WEBHOOK_AVATAR_URL", ""),
 )
 
 print("👾 Connected to Discord...")
-
-serper = SerperClient(os.getenv("SERPER_KEY"))
-
-print("🔗 Connected to Serper...")
 
 queries = [
     '(site:lever.co OR site:greenhouse.io OR site:ashbyhq.com OR site:resolu.com OR site:pinpoint.hq) ("Summer" OR "Intern") (Investment OR Equities OR Quant OR Software OR SWE)',
     '(site:myworkdayjobs.com OR site:icims.com OR site:smartrecruiters.com OR site:jobvite.com OR site:breezy.hr) ("Summer" OR "Intern") (Investment OR Equities OR Quant OR Software OR SWE)',
 ]
 
+engines = [
+    SerperClient(os.getenv("SERPER_KEY", ""), queries)
+]
+
+
+print("🔗 Connected to Serper...")
 
 def log_error(message):
     with open(logging_file, "a") as f:
@@ -54,18 +56,16 @@ def initial_search():
     if recent_job and recent_job.created_at > datetime.now() - timedelta(days=1):
         print("🔎 Skipping initial search, recent job found")
         return
-    for query in queries:
-        results = serper.search(query)
+    for engine in engines:
+        jobs = engine.search()
 
-        for result in results:
+        print(f"✅ [{engine.__class__.__name__}] {len(jobs)} jobs found!")
+
+        for job in jobs:
             try:
-                Job.create(
-                    title=result.title,
-                    url=result.url,
-                    snippet=result.snippet,
-                    date=result.date,
-                )
+                job.save()
             except IntegrityError:
+                log_error(traceback.format_exc())
                 pass
             except:
                 print("❌ Failed to add job to database")
@@ -73,7 +73,7 @@ def initial_search():
 
         all_jobs = Job.select()
 
-        print(f"✅ {len(all_jobs)} jobs stored in the database!")
+        print(f"✅ [{engine.__class__.__name__}] {len(all_jobs)} jobs stored in the database!")
 
 
 def job_search():
@@ -81,25 +81,20 @@ def job_search():
     Search for new jobs, add them to the database, and send them to Discord
     """
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} 🚀 Starting job search")
-    for query in queries:
-        results = serper.search(query)
+    for engine in engines:
+        jobs = engine.search()
 
-        for result in results:
+        for job in jobs:
             try:
                 with db.atomic() as txn:
-                    Job.create(
-                        title=result.title,
-                        url=result.url,
-                        snippet=result.snippet,
-                        date=result.date,
-                    )
-                    embed = Embed(title=result.title, description=result.snippet)
+                    job.save()
+                    embed = Embed(title=job.title, description=job.snippet)
                     embed.set_color("#14452F")
                     embed.set_author(client.webhook_name, icon_url=client.avatar_url)
-                    embed.add_field("Link", result.url, False)
-                    if result.date:
+                    embed.add_field("Link", job.url, False)
+                    if job.date:
                         embed.add_field(
-                            "Date", datetime.strftime(result.date, "%Y-%m-%d")
+                            "Date", datetime.strftime(job.date, "%Y-%m-%d")
                         )
                     embed.set_timestamp()
 
@@ -107,7 +102,7 @@ def job_search():
                         client.send_embeds([embed])
                         print("✅ Sent webhook")
                         print("==================================")
-                        print(result)
+                        print(job)
                         print("==================================")
                         sleep(random.randint(3, 8))  # Sleep between 3 and 8 seconds
                     except:
@@ -120,7 +115,7 @@ def job_search():
             except:
                 print("❌ Failed to add job to database")
                 print("==================================")
-                print(result)
+                print(job)
                 print("==================================")
                 log_error(traceback.format_exc())
 
