@@ -1,4 +1,5 @@
 from peewee import IntegrityError, SqliteDatabase
+from engines.harvard import HarvardClient
 from utils import DiscordClient, Embed
 from engines import SerperClient
 from models import database_proxy, Job
@@ -39,7 +40,8 @@ queries = [
 ]
 
 engines = [
-    SerperClient(os.getenv("SERPER_KEY", ""), queries)
+    SerperClient(os.getenv("SERPER_KEY", ""), queries),
+    HarvardClient()
 ]
 
 
